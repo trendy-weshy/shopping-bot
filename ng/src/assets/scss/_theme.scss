@@ -1,0 +1,35 @@
+/*
+* Application Themes included here
+* */
+
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// **Be sure that you only ever include this mixin once!**
+@include mat-core();
+
+// Define the default theme (same as the example above).
+$eComm-app-primary: mat-palette($mat-orange, 700, 500, 900);
+$eComm-app-accent:  mat-palette($mat-blue, 700, 500, 800);
+$eComm-app-warn:    mat-palette($mat-red, 700, 500, 900);
+$eComm-app-theme:   mat-light-theme($eComm-app-primary, $eComm-app-accent, $eComm-app-warn);
+
+// Include the default theme styles.
+@include angular-material-theme($eComm-app-theme);
+
+
+// Define an alternate dark theme.
+$eComm-dark-primary: mat-palette($mat-amber, 800, 600, 900);
+$eComm-dark-accent:  mat-palette($mat-orange, A700, 700, 900);
+$eComm-dark-warn:    mat-palette($mat-deep-purple, 700, 700, 900);
+$eComm-dark-theme:   mat-dark-theme($eComm-dark-primary, $eComm-dark-accent, $eComm-dark-warn);
+
+// Include the alternative theme styles inside of a block with a CSS class. You can make this
+// CSS class whatever you want. In this example, any component inside of an element with
+// `.eComm-dark-theme` will be affected by this alternate dark theme instead of the default theme.
+
+.eComm-dark-theme {
+  @include angular-material-theme($eComm-dark-theme);
+}

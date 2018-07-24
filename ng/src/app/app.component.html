@@ -1,0 +1,27 @@
+
+<mat-sidenav-container class="app-container" [hasBackdrop]="(ui$ | async)?.sidebar?.backdrop" (backdropClick)="toggleSidebar()">
+
+
+  <mat-sidenav
+    [ngClass]="{
+      'app-sidebar': (ui$ | async)?.device === 'desktop',
+      'app-tablet-sidebar': (ui$ | async)?.device === 'tablet',
+      'app-mobile-sidebar': (ui$ | async)?.device === 'mobile'
+    }"
+    [mode]="(ui$ | async)?.sidebar?.mode" [opened]="(ui$ | async)?.sidebar?.opened" autoFocus style="border-right: 1px solid #ccc;" [position]="'start'">
+
+    <app-sidebar-tabs></app-sidebar-tabs>
+  </mat-sidenav>
+
+
+  <mat-sidenav-content>
+
+    <app-topbar></app-topbar>
+
+    <router-outlet></router-outlet>
+
+    <!-- <app-chatbar></app-chatbar> -->
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

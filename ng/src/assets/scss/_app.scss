@@ -1,0 +1,11 @@
+#window {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+  margin-top: (64px * 2);
+  margin-bottom: 64px;
+}
+
+.mobile-window {
+  margin-top: (64px * 2) - 13 !important;
+}

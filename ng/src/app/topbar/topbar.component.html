@@ -1,0 +1,29 @@
+<mat-toolbar class="app-topbar" color="primary">
+
+  <mat-toolbar-row class="app-titlebar">
+    <button mat-icon-button type="button" class="toggle-menu" (click)="toggleSidebar()">
+      <mat-icon class="menu-icon">menu</mat-icon>
+    </button>
+
+    <h2 class="app-title">JumiaBot</h2>
+  </mat-toolbar-row>
+
+  <mat-divider></mat-divider>
+
+  <mat-toolbar-row class="mat-elevation-z2">
+
+    <button mat-button type="button" matTooltip="Jumia Bot Dashboard">
+      <mat-icon>dashboard</mat-icon> <span *ngIf="!isXSmallDevice">&nbsp;&nbsp;DASHBOARD</span>
+    </button>
+
+    <button mat-button type="button" matTooltip="Shopper's Profile">
+      <mat-icon>person</mat-icon> <span *ngIf="!isSmallDevice && !isXSmallDevice">&nbsp;&nbsp;SHOPPER</span>
+    </button>
+
+    <button mat-button type="button" matTooltip="About the BOT">
+      <mat-icon>info</mat-icon> <span *ngIf="!isSmallDevice && !isXSmallDevice">&nbsp;&nbsp;ABOUT BOT</span>
+    </button>
+
+  </mat-toolbar-row>
+
+</mat-toolbar>
