@@ -7,6 +7,7 @@
 
 import scrapy
 
+
 class ProductCategories(scrapy.Item):
     main = scrapy.Field()
     main_link = scrapy.Field()

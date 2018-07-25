@@ -2,9 +2,10 @@ from flask import Flask
 from flask_mongoengine import MongoEngine
 from settings import config
 from flask_cors import CORS
+from flask_mail import Mail
 
 db = MongoEngine()
-
+mail = Mail()
 
 def create_app():
     # initalize instance of Flask application
@@ -18,6 +19,8 @@ def create_app():
 
     # initialize connection to MongoDB
     db.init_app(app)
+
+    mail.init_app(app)
 
     from .admin import create_admin_console
     create_admin_console(app)

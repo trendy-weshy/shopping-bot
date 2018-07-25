@@ -19,7 +19,6 @@ class User(db.Document, UserMixin):
     email = db.EmailField(required=True, unique=True)
     password = db.StringField(required=True, unique=True)
     active = db.BooleanField(default=True)
-    confirmed_at = db.DateTimeField(required=False)
     created_on = db.DateTimeField(default=datetime.datetime.now)
     roles = db.ListField(db.ReferenceField(Role), default=[])
 

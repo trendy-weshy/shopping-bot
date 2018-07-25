@@ -2,14 +2,14 @@
 import os
 import logging
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 class Config(object):
-    DATABASE = {
-        'name': os.environ.get('POSTGRES_DB_NAME'),
-        'engine': 'playhouse.postgres_ext.PostgresqlExtDatabase',
-        'user': os.environ.get('POSTGRES_DB_USER'),
-        'password': os.environ.get('POSTGRES_DB_PASSWORD'),
-        'host': os.environ.get('POSTGRES_DB_HOST'),
-        'port': os.environ.get('POSTGRES_DB_PORT'),
+    MONGODB_SETTINGS = {
+        'host': os.getenv('MONGODB_URI', default='mongodb://localhost:27017/voke-db')
     }
 
     SECRET_KEY = 'ZAL3mnEt+LiE8U7HfN20Bw=='
@@ -18,7 +18,7 @@ class Config(object):
     TESTING = False
 
     # Flask-Security config
-    SECURITY_URL_PREFIX = "/console"
+    SECURITY_URL_PREFIX = "/admin"
     SECURITY_PASSWORD_HASH = "pbkdf2_sha512"
     SECURITY_PASSWORD_SALT = "tiYsCOHmBQFEACxBnLU="
 
@@ -27,13 +27,13 @@ class Config(object):
     SECURITY_LOGOUT_URL = "/logout/"
     SECURITY_REGISTER_URL = "/register/"
 
-    SECURITY_POST_LOGIN_VIEW = "/console/"
-    SECURITY_POST_LOGOUT_VIEW = "/console/"
-    SECURITY_POST_REGISTER_VIEW = "/console/"
+    SECURITY_POST_LOGIN_VIEW = "/admin/"
+    SECURITY_POST_LOGOUT_VIEW = "/admin/"
+    SECURITY_POST_REGISTER_VIEW = "/admin/"
 
     # Flask-Security features
-    SECURITY_REGISTERABLE = True
-    SECURITY_SEND_REGISTER_EMAIL = True
+    SECURITY_REGISTERABLE = False
+    SECURITY_SEND_REGISTER_EMAIL = False
 
     MAIL_SERVER = os.environ.get('SMTP_HOST_ADDRESS')
     MAIL_PORT = os.environ.get('SMTPL_PORT')

@@ -20,10 +20,6 @@ class JumiaSpider(scrapy.Spider):
                 'Main Category': main_categories.css('a.main-category span.nav-subTxt::text').extract_first(),
                 'Main Category Link': main_categories.css('a.main-category::attr("href")').extract_first(),
                 'categories': []
-                # 'Categories': main_categories.css('div.navLayerWrapper div.submenu .column div.categories a.category::text').extract(),
-                # 'Sub-Categories': main_categories.css('div.navLayerWrapper div.submenu .column div.categories a.subcategory::text').extract(),
-                # 'Categories Links': main_categories.css('div.navLayerWrapper div.submenu .column div.categories a.category::attr("href")').extract(),
-                # 'Sub-Category Links': main_categories.css('div.navLayerWrapper div.submenu .column div.categories a.subcategory::attr("href")').extract(),
             }
 
             if main['Main Category'] is not None and main['Main Category Link'] is not None:
@@ -50,8 +46,6 @@ class JumiaSpider(scrapy.Spider):
                     main['categories'].append(category)
             
             yield ProductCategories(main=main['Main Category'], main_link=main['Main Category Link'], categories=main['categories'])
-
-
     
     def parse_product_list(self, response):
         for product in response.css('section.products.-mabaya div.sku.-gallery'):
