@@ -33,8 +33,10 @@ class ProductCategoriesPipeline(object):
             main_category_link = item['main_link'] if item['main_link'] is not None else None
 
             ProductCategoriesPipeline.save_category({
-                'title': main_category,
-                'link': main_category_link
+                'category': {
+                    'title': main_category,
+                    'link': main_category_link
+                }
             }, spider)
 
             for category in item['categories'] if len(item['categories']) > 0 else []:
