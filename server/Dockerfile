@@ -5,6 +5,8 @@ ENV PYTHONUNBUFFERED 1
 
 ENV HOST 0.0.0.0
 
+ENV MONGODB_URI mongodb://localhost:27072/jumia_catalog-db
+
 COPY . /var/www/
 
 WORKDIR /var/www/

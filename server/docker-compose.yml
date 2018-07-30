@@ -1,22 +1,20 @@
- version: '3.7'
+version: '3.2'
 
 services:
   server:
     build: .
     container_name: jumia-bot-server
-    env_file: .env
     environment:
-      -SCRAPER_TRIGGER=/var/www/trigger-scraper.sh
-      -PYTHONENV=production
-      -MONGODB_URI=mongodb://localhost:27072/jumia_catalog-db
-    port:
-      - "5000":"5050"
-      - "8000":"8008"
-    stop_grace_period: 1m
+      - SCRAPER_TRIGGER="/var/www/trigger-scraper.sh"
+      - PYTHONENV="production"
+      - MONGODB_URI="mongodb://localhost:27072/jumia_catalog-db"
+    ports:
+      - "5000:5050"
+      - "8000:8008"
     volumes:
       - type: bind
-        source: ./
-        target: /var/www
+        source: .
+        target: /var/www/html/node_modules
     restart: "no"
     command: sh run.sh
 

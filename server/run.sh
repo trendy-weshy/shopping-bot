@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export MONGODB_URI="mongodb://localhost:27072/jumia_catalog-db"
+
 if [ -d "logs" ]
 then
     echo "Log folder already created!"
