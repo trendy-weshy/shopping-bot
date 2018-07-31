@@ -135,3 +135,6 @@ pip-log.txt
 venv
 *.pyc
 build
+
+database/**
+!database/.gitkeep
