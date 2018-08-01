@@ -1,13 +1,13 @@
 import datetime
 from . import db
 from mongoengine import *
-from mongoengine import signals
+from mongoengine import signals, errors
 
 
 class ProductCategory(db.DynamicDocument):
     title = StringField(required=True, unique=True)
-    link = URLField(required=False)
-    sub_categories = ListField(ReferenceField('self'), unique=True, default=[])
+    link = URLField()
+    sub_categories = ListField(ReferenceField('self', dbref=True), default=[])
     added_on = DateTimeField(default=datetime.datetime.now)
     modified_on = DateTimeField(default=datetime.datetime.now)
 
@@ -36,7 +36,7 @@ class Product(db.DynamicDocument):
     brand = ReferenceField(ProductBrand, required=False)
 
     meta = {
-        'collection': 'ProductCategories',
+        'collection': 'Products',
         'indexes': [
             {
                 'fields': ['$title'],
@@ -57,7 +57,7 @@ class Product(db.DynamicDocument):
         if brand is not None:
             try:
                 product_brand = ProductBrand.objects.get(title=brand)
-            except product_brand.DoesNotExist:
+            except errors.DoesNotExist:
                 product_brand = ProductBrand(title=brand)
                 product_brand.save()
 
@@ -73,7 +73,7 @@ class Product(db.DynamicDocument):
                 brand=product_brand
             )
             return product
-        except DoesNotExist:
+        except errors.DoesNotExist:
             product = Product(
                 title=title,
                 sku=sku,
@@ -86,6 +86,8 @@ class Product(db.DynamicDocument):
             product.save()
 
             return product
+        except errors.NotUniqueError:
+            raise Exception('Already added')
 
 
 def update_modified(sender, document):

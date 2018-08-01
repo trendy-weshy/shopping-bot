@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd scraper
-scrapy crawl jumia
+scrapy crawl jumia --

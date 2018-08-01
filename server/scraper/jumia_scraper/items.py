@@ -9,9 +9,9 @@ import scrapy
 
 
 class ProductCategories(scrapy.Item):
-    main = scrapy.Field()
-    main_link = scrapy.Field()
-    categories = scrapy.Field()
+    title = scrapy.Field()
+    link = scrapy.Field()
+    parent = scrapy.Field()
 
 
 class Products(scrapy.Item):

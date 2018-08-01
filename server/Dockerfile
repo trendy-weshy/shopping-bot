@@ -5,13 +5,13 @@ ENV PYTHONUNBUFFERED 1
 
 ENV HOST 0.0.0.0
 
-ENV MONGODB_URI mongodb://localhost:27072/jumia_catalog-db
+ENV MONGODB_URI=mongodb://localhost:27072/jumia_catalog-db
 
-COPY . /var/www/
+COPY . /voke/
 
-WORKDIR /var/www/
+WORKDIR /voke/
 
-RUN pip install -r requirements.txt --no-cache-dir --user
+RUN pip install -r requirements.txt
 
 EXPOSE 5000 8000
 

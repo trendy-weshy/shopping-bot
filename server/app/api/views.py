@@ -1,9 +1,9 @@
 from . import api
 import datetime
-from flask import jsonify, request, abort
+from flask import jsonify, request
 from flask_cors import cross_origin
 from ..models import ProductCategory, Product
-from mongoengine import NotUniqueError
+from mongoengine import errors
 
 
 @api.after_request
@@ -18,7 +18,7 @@ def ping_api():
     return jsonify(time=datetime.datetime.now())
 
 
-@api.route("/categories")
+@api.route("/categories/", methods=['POST', 'GET'])
 def product_categories():
     if request.method == 'GET':
         categories = ProductCategory.objects()
@@ -27,43 +27,45 @@ def product_categories():
     if request.method == 'POST':
         req_data = request.get_json()
 
-        parent_category = req_data['parent'] if 'parent' in req_data else None
+        parent_category = req_data['parent_category'] if 'parent_category' in req_data and req_data['parent_category'] is not None else None
         category = req_data['category'] if 'category' in req_data else None
 
         try:
 
             if parent_category is not None:
-                get_parent_category = ProductCategory.objects.get(title=parent_category.title)
+                get_parent_category = ProductCategory.objects.get(title=parent_category['title'].strip().lower())
 
-                new_category = ProductCategory(title=category.title, link=category.link)
+                new_category = ProductCategory(title=category['title'].strip().lower(), link=category['link'])
                 new_category.save()
 
-                get_parent_category.update(push__sub_categories=new_category)
+                get_parent_category.update(add_to_set__sub_categories=new_category)
+
+                return jsonify(new_category)
             else:
-                new_category = ProductCategory(title=category.title, link=category.link)
+                new_category = ProductCategory(title=category['title'].strip().lower(), link=category['link'])
                 new_category.save()
 
-            return jsonify(new_category)
-        except get_parent_category.DoesNotExist:
-            new_parent_category = ProductCategory(title=parent_category.title, link=parent_category.link)
+                return jsonify(new_category)
+        except errors.DoesNotExist:
+            new_parent_category = ProductCategory(title=parent_category['title'].strip().lower(), link=parent_category['link'])
             new_parent_category.save()
 
-            new_category = ProductCategory(title=category.title, link=category.link)
+            new_category = ProductCategory(title=category['title'].strip().lower(), link=category['link'])
             new_category.save()
 
-            new_parent_category.update(push__sub_categories=new_category)
+            ProductCategory.objects.get(title=parent_category['title'].strip().lower()).update(add_to_set__sub_categories=new_category)
 
             return jsonify({
                 'parent': new_parent_category,
                 'category': new_category
             })
-        except NotUniqueError:
-            abort(406, 'Category seems to already been.', name='DuplicateRecord')
+        except errors.NotUniqueError:
+            return jsonify(msg='Category seems to already been added', name='DuplicateRecord'), 406
         except:
-            abort(500, 'Could not finish processing request', name='CorruptRequest')
+            return jsonify(msg='Could not finish processing request', name='CorruptRequest'), 500
 
 
-@api.route('/products')
+@api.route('/products/', methods=['POST', 'GET'])
 def save_product():
     if request.method == 'GET':
         products = Product.objects()
@@ -73,11 +75,7 @@ def save_product():
         req_data = request.get_json()
 
         try:
-            category = ProductCategory.objects.get(title=req_data["category"])
-        except category.DoesNotExist:
-            abort(404, "Category not found", name="MissingCategory")
-
-        try:
+            category = ProductCategory.objects.get(title=req_data["category"].strip().lower())
             product = Product.create_or_update(
                 req_data["title"],
                 req_data["sku"],
@@ -89,5 +87,8 @@ def save_product():
             )
 
             return jsonify(product)
-        except:
-            abort(500, 'Could not finish processing request', name='CorruptRequest')
+        except errors.DoesNotExist:
+            return jsonify(msg="Product Category not found", name="MissingCategory"), 404
+        except Exception as e:
+            print(e)
+            return jsonify(msg='Could not finish processing request', name='CorruptRequest'), 500

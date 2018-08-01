@@ -16,36 +16,50 @@ class JumiaSpider(scrapy.Spider):
 
     def parse(self, response):
         for main_categories in response.css('#menuFixed ul.menu-items li.menu-item'):
-            main = {
-                'Main Category': main_categories.css('a.main-category span.nav-subTxt::text').extract_first(),
-                'Main Category Link': main_categories.css('a.main-category::attr("href")').extract_first(),
-                'categories': []
-            }
 
-            if main['Main Category'] is not None and main['Main Category Link'] is not None:
-                yield scrapy.Request(main['Main Category Link'], callback=self.parse_product_list, meta={ 'category': main['Main Category'] })
+            main_category = main_categories.css('a.main-category span.nav-subTxt::text').extract_first()
+            main_category_link = main_categories.css('a.main-category::attr("href")').extract_first()
+
+            if main_category is not None or main_category_link is not None:
+                yield ProductCategories(title=main_category.strip().lower(), link=main_category_link)
+
+            if main_category is not None or main_category_link is not None:
+                yield scrapy.Request(main_category_link, callback=self.parse_product_list, meta={'category': main_category.strip().lower()})
         
             for categories in main_categories.css('div.navLayerWrapper div.submenu .column'):
 
                 for sub_categories in categories.css('div.categories'):
-                    category = {
-                        'Category': sub_categories.css('.category::text').extract_first(),
-                        'Category Link': sub_categories.css('a.category::attr("href")').extract_first(),
-                        'Sub Categories': sub_categories.css('a.subcategory::text').extract(),
-                        'Sub Category Links': sub_categories.css('a.subcategory::attr("href")').extract()
-                    }
+                    category = sub_categories.css('.category::text').extract_first()
+                    category_link = sub_categories.css('a.category::attr("href")').extract_first()
 
-                    
+                    if category is not None:
+                        yield ProductCategories(
+                            title=category.strip().lower(),
+                            link=category_link,
+                            parent=dict(
+                                title=main_category.strip().lower(),
+                                link=main_category_link
+                            ) if main_category is not None or main_category_link is not None else None
+                        )
 
-                    if category['Category'] is not None and category['Category Link'] is not None:
-                        yield scrapy.Request(category['Category Link'], callback=self.parse_product_list, meta={ 'category': category['Category'] })
+                    sub_category_titles = sub_categories.css('a.subcategory::text').extract()
+                    sub_category_links = sub_categories.css('a.subcategory::attr("href")').extract()
 
-                    for idx, sub in enumerate(category['Sub Categories']):
-                        yield scrapy.Request(category['Sub Category Links'][idx], callback=self.parse_product_list, meta={ 'category': sub })
+                    for idx, sub in enumerate(sub_category_titles):
+                        yield ProductCategories(
+                            title=sub.strip().lower(),
+                            link=sub_category_links[idx],
+                            parent=dict(
+                                title=category,
+                                link=category_link
+                            ) if category is not None or category_link is not None else None
+                        )
 
-                    main['categories'].append(category)
-            
-            yield ProductCategories(main=main['Main Category'], main_link=main['Main Category Link'], categories=main['categories'])
+                    for idx, sub in enumerate(sub_category_titles):
+                        yield scrapy.Request(sub_category_links[idx], callback=self.parse_product_list, meta={'category': sub.strip().lower()})
+
+                    if category is not None or category_link is not None:
+                        yield scrapy.Request(category_link, callback=self.parse_product_list, meta={'category': category.strip().lower()})
     
     def parse_product_list(self, response):
         for product in response.css('section.products.-mabaya div.sku.-gallery'):

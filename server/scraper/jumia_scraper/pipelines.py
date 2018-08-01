@@ -21,64 +21,25 @@ load_dotenv()
 class ProductCategoriesPipeline(object):
     file_name = 'dumps/jumia/product_categories.json'
     category_list = []
-
-    def __init__(self):
-        if os.path.isfile(self.file_name):
-            os.remove(self.file_name)
-            print('removed products list')
+    url = '{base_url}/categories/'.format(base_url=os.getenv("SCRAPY_API_URL"))
 
     def process_item(self, item, spider):
         try:
-            main_category = item['main'].strip().lower() if item['main'] is not None else None
-            main_category_link = item['main_link'] if item['main_link'] is not None else None
+            title = item['title'].strip().lower() if item['title'] is not None else None
+            link = item['link'] if item['link'] is not None else None
+            parent_category = item['parent'] if item['parent'] is not None else None
 
-            ProductCategoriesPipeline.save_category({
-                'category': {
-                    'title': main_category,
-                    'link': main_category_link
-                }
-            }, spider)
-
-            for category in item['categories'] if len(item['categories']) > 0 else []:
-                title = category['Category'].strip().lower() if category['Category'] is not None else None
-                link = category['Category Link'] if category['Category Link'] is not None else None
-
-                ProductCategoriesPipeline.save_category({
-                    'category': {'title': title, 'link': link},
-                    'parent_category': {'title': main_category, 'link': main_category_link}
-                }, spider)
-
-                for idx, v in enumerate(category['Sub Categories']):
-                    ProductCategoriesPipeline.save_category({
-                        'category': {'title': v.strip().lower(), 'link': category['Sub Category Links'][idx]},
-                        'parent_category': {'title': title, 'link': link}
-                    }, spider)
+            if title is not None and link is not None:
+                category = { 'category': { 'title': title, 'link': link }, 'parent_category': parent_category }
+                requests.post(self.url, json=category)
 
             return item
         finally:
             return item
 
-    @staticmethod
-    def save_category(category, spider):
-        url = '{base_url}/categories'.format(base_url=os.getenv("SCRAPY_API_URL"))
-        req = requests(url, json=category)
-
-        if req.status_code == requests.codes.ok:
-            spider.log('[API_REQUEST] successfully saved product category', logging.DEBUG)
-            product_category = req.json()
-            spider.log(
-                '[API_REQUEST] response return {key}: {value}'.format(key='product category ID',
-                                                                      value=product_category['id']),
-                logging.INFO
-            )
-        elif req.status_code == 406:
-            spider.log('[API_REQUEST] data provided was not accepted by the api', logging.ERROR)
-        elif req.status_code == 500:
-            spider.log('[API_REQUEST] request performed could not be finished hence', logging.ERROR)
-
 
 class ProductsPipeline(object):
-    url = '{base_url}/products'.format(base_url=os.getenv("SCRAPY_API_URL"))
+    url = '{base_url}/products/'.format(base_url=os.getenv("SCRAPY_API_URL"))
 
     def __init__(self):
         self.skus_seen = set()
@@ -114,9 +75,9 @@ class ProductsPipeline(object):
                         logging.INFO
                     )
                 elif req.status_code == 404:
-                    spider.log('[API_REQUEST] category used in request does not exist', logging.WARN)
+                    spider.log(req.json(), logging.WARN)
                 elif req.status_code == 500:
-                    spider.log('[API_REQUEST] request performed could not be finished hence', logging.ERROR)
+                    spider.log(req.json(), logging.ERROR)
 
                 return item
             finally:

@@ -12,17 +12,10 @@ def make_shell_context():
 @application.cli.command('create_superuser')
 def create_superuser():
     try:
-        (
-            User.objects.get(email='waweruj00@gmail.com')
-        )
+        User.objects.get(email='waweruj00@gmail.com')
         print("superuser already exist")
     except DoesNotExist:
-        new_user = User(
-            email='waweruj00@gmail.com',
-            password='john.8242',
-            first_name='John',
-            last_name='Wambugu'
-        )
+        new_user = User(email='waweruj00@gmail.com', password='john.8242',first_name='John',last_name='Wambugu')
         new_user.save()
 
 
@@ -30,10 +23,7 @@ def create_superuser():
 def create_superuser_role():
     try:
         superuser = User.objects.get(email='waweruj00@gmail.com')
-        role = Role(
-            name='superuser',
-            description='admin of all admins'
-        )
+        role = Role(name='superuser', description='admin of all admins')
         role.save()
         superuser.update(push__roles=role)
     except DoesNotExist:

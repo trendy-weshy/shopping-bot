@@ -4,17 +4,13 @@ services:
   server:
     build: .
     container_name: jumia-bot-server
-    environment:
-      - SCRAPER_TRIGGER="/var/www/trigger-scraper.sh"
-      - PYTHONENV="production"
-      - MONGODB_URI="mongodb://localhost:27072/jumia_catalog-db"
     ports:
       - "5000:5050"
       - "8000:8008"
     volumes:
       - type: bind
         source: .
-        target: /var/www/html/node_modules
+        target: /var/www/
     restart: "no"
     command: sh run.sh
     depends_on:
@@ -25,6 +21,8 @@ services:
     container_name: mongo-db
     image: mongo
     volumes:
-      - ./database:/data/db
+      - type: volume
+        source: ./database/
+        target: /data/db/
     ports:
       - "27072:27017"
